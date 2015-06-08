@@ -319,6 +319,7 @@ void ZCollector::gc()
   Dir::Entry entry;
 
   BundleCollector collector;
+  collector.indexModified = true;
   collector.bundlesPath = getBundlesPath();
   collector.chunkStorageReader = &this->chunkStorageReader;
   collector.chunkStorageWriter = &chunkStorageWriter;
