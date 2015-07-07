@@ -4,6 +4,23 @@
 cmake_minimum_required( VERSION 2.8.2 )
 project( zbackup )
 
+option( BUILD_STATIC "Build a static executable" OFF )
+
+if ( BUILD_STATIC )
+  message( STATUS "Building static executable" )
+  set( CMAKE_FIND_LIBRARY_SUFFIXES ".a" )
+  set( BUILD_SHARED_LIBRARIES OFF )
+  if ( NOT APPLE )
+    set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static" )
+    foreach( type SHARED_LIBRARY SHARED_MODULE EXE )
+      set( CMAKE_${type}_LINK_C_FLAGS "" )
+      set( CMAKE_${type}_LINK_CXX_FLAGS "" )
+      set( CMAKE_${type}_LINK_DYNAMIC_C_FLAGS "-Wl,-Bstatic" )
+      set( CMAKE_${type}_LINK_DYNAMIC_CXX_FLAGS "-Wl,-Bstatic" )
+    endforeach( type )
+  endif ( NOT APPLE )
+endif ( BUILD_STATIC )
+
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
 
 if( NOT CMAKE_BUILD_TYPE )
@@ -70,5 +87,9 @@ target_link_libraries( zbackup
   ${LIBLZO_LIBRARIES}
   ${LIBUNWIND_LIBRARIES}
 )
+
+if ( BUILD_STATIC AND NOT APPLE )
+  target_link_libraries( zbackup dl )
+endif ( BUILD_STATIC AND NOT APPLE )
 
 install( TARGETS zbackup DESTINATION bin )
